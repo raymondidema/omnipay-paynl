@@ -20,6 +20,8 @@ class PurchaseRequest extends AbstractPaynlRequest
      */
     private $addressRegex = '#^([a-z0-9 [:punct:]\']*) ([0-9]{1,5})([a-z0-9 \-/]{0,})$#i';
 
+    protected $language;
+
     /**
      * @return array
      * @throws \Omnipay\Common\Exception\InvalidRequestException
@@ -57,7 +59,7 @@ class PurchaseRequest extends AbstractPaynlRequest
                 'dob' => $card->getBirthday('d-m-Y'),
                 'phoneNumber' => $card->getPhone(),
                 'emailAddress' => $card->getEmail(),
-                'language' => substr($card->getCountry(), 0, 2),
+                'language' => $this->language ? $this->language : substr($card->getCountry(), 0, 2),
                 'address' => array(
                     'streetName' => isset($shippingAddressParts[1]) ? $shippingAddressParts[1] : null,
                     'streetNumber' => isset($shippingAddressParts[2]) ? $shippingAddressParts[2] : null,
@@ -241,5 +243,16 @@ class PurchaseRequest extends AbstractPaynlRequest
         $addressParts = [];
         preg_match($this->addressRegex, trim($address), $addressParts);
         return array_filter($addressParts, 'trim');
+    }
+
+    /**
+     * Set a language code
+     * @param string $languageCode
+     * @return $this
+     */
+    public function setLanguage($languageCode)
+    {
+        $this->language = $languageCode;
+        return $this;
     }
 }
